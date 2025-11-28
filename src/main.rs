@@ -33,7 +33,24 @@ fn execute_command(cmd: &str, args: &str) {
         "exit" => std::process::exit(0),
         "echo" => println!("{}", args),
         "type" => handle_type(args),
-        _ => println!("{}: command not found", cmd),
+        _ => run_external_command(cmd, args),
+    }
+}
+
+fn run_external_command(cmd: &str, args: &str) {
+    if let Some(path) = find_executable(cmd) {
+        let args: Vec<&str> = if args.is_empty() {
+            vec![]
+        } else {
+            args.split_whitespace().collect()
+        };
+
+        match std::process::Command::new(path).args(args).status() {
+            Ok(_) => {}
+            Err(e) => eprintln!("{}: {}", cmd, e),
+        }
+    } else {
+        println!("{}: command not found", cmd);
     }
 }
 
