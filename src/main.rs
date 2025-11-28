@@ -9,9 +9,12 @@ fn main() {
         let mut command = String::new();
         io::stdin().read_line(&mut command).unwrap();
 
-        match command.trim() {
-            "exit" => break,
-            _ => println!("{}: command not found", command.trim())
+        if command.starts_with("exit") {
+            std::process::exit(0);
+        } else if command.starts_with("echo") {
+            println!("{}", command.replace("echo ", "").trim());
+        } else {
+            println!("{}: command not found", command.trim());
         }
     }
 }
