@@ -45,9 +45,21 @@ fn run_external_command(cmd: &str, args: &str) {
             args.split_whitespace().collect()
         };
 
-        match std::process::Command::new(path).args(args).status() {
-            Ok(_) => {}
-            Err(e) => eprintln!("{}: {}", cmd, e),
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt;
+            match std::process::Command::new(&path).arg0(cmd).args(args).status() {
+                Ok(_) => {}
+                Err(e) => eprintln!("{}: {}", cmd, e),
+            }
+        }
+
+        #[cfg(windows)]
+        {
+            match std::process::Command::new(path).args(args).status() {
+                Ok(_) => {}
+                Err(e) => eprintln!("{}: {}", cmd, e),
+            }
         }
     } else {
         println!("{}: command not found", cmd);
